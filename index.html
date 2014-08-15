@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    
+    <title>AngularJS and Continuous Delivery</title>
+    
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <link rel="stylesheet" href="css/reveal.min.css">
+    <link rel="stylesheet" href="css/theme/default.css" id="theme">
+    <link rel="stylesheet" href="css/custom.css">
+    
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+    
+  </head>
+  
+  <body>
+    
+    <div class="reveal">
+      
+      <div class="slides">
+        
+        <!-- //////////////////// SLIDE GROUP //////////////////// -->
+        <section data-background="#ddd">
+          
+          <section>
+            <h2>hey, welcome to <img src="img/AOL_MB_Canv_1C_Say_Rd_RGB.png" width="120" height="130" alt="AOL MB Canv 1C Say Orng RGB" style="vertical-align: middle;"></h2>
+            <ul>
+              <li>I'm <a href="https://twitter.com/dankapusta" target="_blank">@dankapusta</a>.</li>
+              <li>I like shipping software.</li>
+              <li>We'll run thru some slides, then roll something out (to dev).</li>
+              <li>This is <strong>a way</strong> to do CI/CD, not <strong>the way</strong> to do it.</li>
+              <li>This preso is done using <a href="http://lab.hakim.se/reveal-js/#/" taget="_blank">reveal.js</a></li>
+            </ul>
+          </section>
+          
+          <section>
+            <h2>app stack</h2>
+              <p>Our cloud provisioning UI is an AngularJS app.</p>
+              <img src="img/otk-stack.png" width="756" height="495" alt="Otk Stack">
+          </section>
+          
+          <section>
+            <h2>my goals</h2>
+            
+            <ul>
+              <li>Local dev (requires <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS" target="_blank">CORS</a> for REST API access)</li>
+              <li>Dev speed/agility (no waiting for build host).</li>
+              <li>No network SPOFs when building (npmjs.org goes down).</li>
+              <li><strong>Fast</strong> on-the-fly testing (JSHint and Protractor).</li>
+              <li>Disaster recoverablity using semver tags.</li>
+              <li>Minimize process! (process ≈ taxes)</li>
+            </ul>
+            <br><br>
+            <p>What's the result?</p>
+          </section>
+          
+        </section>
+        
+        
+        <!-- //////////////////// SLIDE GROUP //////////////////// -->
+        <section data-background="#ddd">
+          
+          <section>
+            <h2>A static docroot!</h2>
+            <ul>
+              <li>Compile static artifacts and check them into the repo.
+                <ul>
+                  <li><a href="https://github.com/gwatts/jquery.sparkline/pull/77" target="_blank">Not everyone likes this idea</a>.</li>
+                  <li><a href="https://github.com/kapusta/jquery.sparkline" target="_blank">I do</a> and I provide a <span class="command">bower.json</span> file.</li>
+                </ul>
+              </li>
+              <li>The <span class="command">docroot</span> directory is small (558K compressed).</li>
+              <li>A tiny VM can serve the front end.</li>
+              <li>Just need Apache or Nginx and a few conf tweaks.</li>
+            </ul>
+          </section>
+          
+          <section>
+          
+            <h2><img src="img/bower-logo.png" width="100" height="90" alt="Bower Logo" style="vertical-align: middle;"> bower dep mgmt</h2>
+            <ul>
+              <li>Install 3rd party deps locally.</li>
+              <li>Reinstall occasionally.</li>
+              <li>Avoids npmjs.org and Bower repo SPOFs (ie, downtime).</li>
+              <li>Build locally without resintalling every time.</li>
+            </ul>
+            <br><br>
+            <p>We'll tour the dir structure in a minute.</p>
+          </section>
+          
+          <section>
+            <h2>Checking in your dependencies (or not)</h2>
+            
+            <ul>
+              <li><a href="http://addyosmani.com/blog/checking-in-front-end-dependencies/" target="_blank">Addy Osmani</a> on checking in deps.</li>
+              <li>I don't check in <span class="command">src/components</span> (huge dep tree).</li>
+              <li>Run <span class="command">cd build && npm list</span> and you'll see why.</li>
+              <li>Pluck from <span class="command">src/components</span> and copy to <span class="command">docroot</span>.</li>
+              <li>Dist <span class="command">docroot</span> using your favorite mechanism...
+                <ul>
+                  <li>jenkins</li>
+                  <li>travis</li>
+                  <li>bower (yes, bower)</li>
+                </ul>
+              </li>
+            </ul>
+          </section>
+          
+          <section>
+            <h2><img src="img/grunt-logo.png" width="90" height="106" alt="Grunt Logo" style="vertical-align: middle;"> i love grunt</h2>
+            <ul>
+              <li>Live reloading via grunt (or via "livereload").</li>
+              <li>Some tests run on save (JSHint fast, unit tests slow).</li>
+              <li>On the run <strong>JSHint</strong> testing using <span class="command">grunt watch:quick</span></li>
+              <li>
+                Run unit and e2e tests from the CLI.
+                <ul>
+                  <li><span class="command">grunt run-e2e-tests</span></li>
+                  <li><span class="command">grunt run-unit-tests</span></li>
+                  <li>Check out <a href="https://egghead.io/series/learn-protractor-testing-for-angularjs" target="_blank">Protractor</a></li>
+                </ul>
+              </li>
+            </ul>
+            
+          </section>
+          
+        </section>
+        
+        
+        <!-- //////////////////// SLIDE GROUP //////////////////// -->
+        <section data-background="#ddd">
+          
+          <section>
+            <h2>file/directory tour</h2>
+<pre><code>-rw-r--r--   1 dan  staff     74 Aug  1 08:46 .gitignore
+-rw-r--r--@  1 dan  staff   9842 Jun  5 16:37 README.md
+-rw-r--r--   1 dan  staff    121 Aug  1 08:46 bower.json
+drwxrwxrwx   7 dan  staff    238 Aug  1 08:46 build
+drwxrwxrwx  11 dan  staff    374 Aug  1 08:46 docroot
+drwxrwxrwx  10 dan  staff    340 Aug  1 08:46 src
+drwxr-xr-x   6 dan  staff    204 Jul  8 11:20 test</pre></code>
+            <br>
+            <h3>.gitignore</h3>
+<pre><code class="bash">/build/node_modules
+/src/components
+/src/tmp
+/test/unit/unit_results.html</code></pre>
+          </section>
+          
+          <section>
+            
+            <h2>build</h2>
+<pre><code class="bash">-rw-r--r--@  1 dan  staff   1592 Jan 28  2014 .jshintrc
+-rwxr-xr-x   1 dan  staff  10411 Aug  1 08:46 Gruntfile.js
+drwxr-xr-x  22 dan  staff    748 Jul 28 15:48 node_modules
+-rwxr-xr-x   1 dan  staff   1264 Aug  1 08:46 package.json</code></pre>
+            <ul>
+              <li>We <span class="command">npm install</span> in here.</li>
+              <li>Run <span class="command">grunt</span> for full rebuild.</li>
+              <li>Run <span class="command">grunt quick</span> for small/fast rebuild.</li>
+              <li>Why not <a href="http://gulpjs.com/" target="_blank">Gulp</a>?
+                <ul>
+                  <li>This Grunt thing is working a-ok.</li>
+                  <li>Gulp is more useful down in nodeland.</li>
+              </li>
+            </ul>
+            
+          </section>
+          
+          <section>
+            <h2>src</h2>
+<pre><code class="bash">-rw-r--r--@  1 dan  staff     34 Jan 31  2014 .bowerrc
+-rw-r--r--   1 dan  staff    644 Aug  1 08:46 bower.json
+drwxr-xr-x  21 dan  staff    714 Jul 15 13:56 components
+drwxrwxrwx   8 dan  staff    272 Aug  1 11:01 js
+drwxrwxrwx   6 dan  staff    204 Aug  1 08:46 less
+drwxrwxrwx  13 dan  staff    442 May 19 11:05 templates
+drwxrwxrwx   5 dan  staff    170 Aug  1 08:46 tmp</pre></code>
+            <ul>
+              <li>We <span class="command">bower install</span> in here.</li>
+              <li>We <span class="command">.gitignore</span> the <span class="command">components</span> directory.
+              <li>95% of the work is done in here.</li>
+            </ul>
+          </section>
+          
+          <section>
+            <h2>test</h2>
+<pre><code class="bash">-rw-r--r--@  1 dan  staff  4469 Jul  8 11:20 README.md
+drwxr-xr-x   5 dan  staff   170 Aug  1 08:46 e2e
+drwxr-xr-x   5 dan  staff   170 Jan 31  2014 examples
+drwxr-xr-x   7 dan  staff   238 Jan 31  2014 unit</pre></code>
+            <ul>
+              <li>This is the hole in the donut.</li>
+              <li>Using Protractor to run tests.</li>
+              <li><span class="command">cd ../build && grunt run-e2e-tests</span></li>
+            </ul>
+          </section>
+          
+          <section>
+          <h2>docroot</h2>
+<pre><code class="bash">-rwxr-xr-x   1 dan  staff   948 Apr 23 10:45 .htaccess
+drwxrwxrwx  15 dan  staff   510 Aug  1 08:46 css
+drwxrwxrwx   7 dan  staff   238 Jan 31  2014 font
+drwxrwxrwx  23 dan  staff   782 Jan 19  2014 images
+-rw-r--r--   1 dan  staff  2320 Aug  1 08:46 index.otk
+drwxr-xr-x  18 dan  staff   612 Aug  1 11:01 js
+drwxrwxrwx  12 dan  staff   408 Aug  1 08:46 json
+drwxr-xr-x  12 dan  staff   408 Jun 30 09:35 templates</pre></code>
+            <ul>
+              <li>The full site lives in here.</li>
+              <li>Only 588k compressed!</li>
+              <li>Point Apache/Nginx at this directory.
+                <ul>
+                  <li><span class="command">httpd.conf</span></li>
+                  <li><span class="command">httpd-vhosts.conf</span></li>
+              </li>
+            </ul>
+          </section>
+          
+        </section>
+        
+        
+        <!-- //////////////////// SLIDE GROUP //////////////////// -->
+        <section data-background="#ddd">
+          
+          <section>
+            <h2><img src="img/Git-Logo-1788C.png" width="150" height="60" alt="Git Logo 1788C" style="vertical-align: middle;"> source control</h2>
+            <ul>
+              <li>Tags enable good CI/CD (know what you're shipping)</li>
+              <li>Use <a href="http://semver.org/" tager="_blank">semver</a> tags (eg, 2.3.1)</li>
+              <li><a href="http://nvie.com/posts/a-successful-git-branching-model/" target="_blank">git-flow</a> branch strategy
+                <ul>
+                  <li><span class="command">master</span> == prod</li>
+                  <li><span class="command">develop</span> == integration</li>
+                  <li><span class="command">topic-branch</span> == local dev hackery</li>
+                </ul>
+              </li>
+              <li>I repeat, <span class="command">master</span> tracks production!</li>
+            </ul>
+          
+          </section>
+          
+          <section>
+            <h2>how i dist</h2>
+            <ol>
+              <li>Get everyone to push their code to <strong>Stash</strong> (or Github).</li>
+              <li>Pull (or fetch/merge) <span class="command">develop</span> from origin.</li>
+              <li>Sort out merge conflicts, check it in.</li>
+              <li>Push <span class="command">develop</span> to origin.</li>
+              <li>Trigger/Verify the Jenkins dev job.</li>
+              <li>Merge <span class="command">develop</span> into <span class="command">master</span>.</li>
+              <li>Tag the repo with a semver tag.</li>
+              <li>Push <span class="command">master</span> up to Stash with the new tag.</li>
+              <li>Trigger/Verify the Jenkins prod job.</li>
+            </ol>
+            
+          </section>
+          
+          <section>
+              <h2><img src="img/jenkins-headshot.png" width="96" height="96" alt="Jenkins Headshot" style="border: 0px; vertical-align: middle;"> dev code delivery</h2>
+              <h3>run on <strong>any new commit</strong></h3>
+              <br>
+              <ol>
+                <li><span class="command">ontrack-ui-fetch</span> - Make a tarball, archive it.</li>
+                <li><span class="command">ontrack-ui-copy-artifacts</span> - Dist the tarball.</li>
+              </ol>
+              <br><br>
+              <p>Separate jobs so we can re-dist easily (eg, new VM).</p>
+          </section>
+          <section>
+              <h2><img src="img/jenkins-headshot.png" width="96" height="96" alt="Jenkins Headshot" style="border: 0px; vertical-align: middle;"> prod code delivery</h2>
+              <h3>run on new commit + <strong>new tag</strong></h3>
+              <br>
+              <ol>
+                <li><span class="command">ontrack-prod-ui-fetch</span> - Make tarball, archive it.</li>
+                <li><span class="command">ontrack-prod-ui-copy-artifacts</span> - Dist the tarball.</li>
+              </ol>
+              <br><br>
+              <p>Separate jobs so we can re-dist easily (eg, new VM).</p>
+          </section>
+          
+        </section>
+        
+        
+        <!-- //////////////////// SLIDE GROUP //////////////////// -->
+        <section data-background="#ddd">
+          
+          <section>
+            <h2>code time</h2>
+            <p><img src="img/do-it-live.jpg" width="300" height="300" alt="Do It Live"></p>
+            <p>Let's patch in auth group array...</p>
+          </section>
+          
+          <section>
+            <h2>Thanks!</h2>
+            <br>
+            <h3>Questions?</h3>
+          </section>
+          
+          <section>
+            <h2>see also...</h2>
+            <ul>
+              <li><a href="https://github.com/kapusta/butcher" target="_blank">my small side project</a></li>
+              <li><a href="https://developer.salesforce.com/blogs/developer-relations/2014/07/building-single-page-app-angularjs-salesforce-rest-api.html">salesforce rest api example</a></li>
+              <li><a href="https://github.com/vesparny/ng-kickstart" target="_blank">ng-kickstart</a></li>
+              <li><a href="https://github.com/DaftMonk/generator-angular-fullstack" target="_blank">generator-angular-fullstack</a></li>
+              <li><a href="https://github.com/Swiip/generator-gulp-angular" target="_blank">generator-gulp-angular</a></li>
+              <li><a href="https://github.com/jgoux/generator-angulpify" target="_blank">generator-angulpify</a></li>
+            </ul>
+          </section>
+          
+        </section>
+        
+      </div>
+      
+    </div>
+    
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.min.js"></script>
+    
+    <script>
+      
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        center: false,
+        progress: true,
+        slideNumber: true,
+        keyboard: true,
+        transition: 'linear', // default, cube, page, concave, zoom, linear, fade, none
+        transitionSpeed: 'fast', // default, slow, fast
+        history: true,
+        center: false,
+        theme: 'simple', // beige, blood, default, moon, night, serif, simple, sky, solarized
+        
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+      
+    </script>
+    
+  </body>
+</html>

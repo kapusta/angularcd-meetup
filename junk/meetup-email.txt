@@ -1,0 +1,20 @@
+Hey everyone!
+
+On Thursday I'll be talking about my AngularJS project and how I organize it for Continuously Delivery. Having some understanding of the following will be helpful.
+
+semver - http://semver.org/
+git-flow - https://github.com/nvie/gitflowe
+grunt  - http://gruntjs.com/
+npm - https://www.npmjs.org/
+bower - http://bower.io/
+
+
+These articles have influenced my thinking.
+
+Addy Osmani - http://addyosmani.com/blog/checking-in-front-end-dependencies/
+Brain Ford - http://briantford.com/blog/huuuuuge-angular-apps.html
+Rebecca Murphey - http://rmurphey.com/blog/2012/04/12/a-baseline-for-front-end-developers/
+
+See you soon.
+
+Dan
